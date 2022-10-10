@@ -1,8 +1,10 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 public class Main {
 
-    public static int exist1(int y, int x, int[][] matrix) {
+    public static int exist(int y, int x, byte[][] matrix) {
         if (outBounds(y, x, matrix)) {
             return -1;
         }
@@ -16,23 +18,23 @@ public class Main {
         return i;
     }
 
-    public static boolean outBounds(int y, int x, int[][] matrix) {
+    public static boolean outBounds(int y, int x, byte[][] matrix) {
         return x < 0 || y < 0 || x >= matrix[0].length || y >= matrix.length;
     }
 
-    public static int square(int[][] matrix) {
+    public static int square(byte[][] matrix) {
         return (matrix.length) * matrix[0].length;
     }
 
-    public static double coefficient(int[][] matrix) {
+    public static double coefficient(byte[][] matrix) {
         return (double) fertile(matrix) / square(matrix);
     }
 
-    public static int fertile(int[][] matrix) {
+    public static int fertile(byte[][] matrix) {
         int count = 0;
-        for (int y = 0; y < matrix.length; y++) {
+        for (byte[] bytes : matrix) {
             for (int x = 0; x < matrix[0].length; x++) {
-                if (matrix[y][x] == 1) {
+                if (bytes[x] == 1) {
                     count++;
                 }
             }
@@ -40,70 +42,41 @@ public class Main {
         return count;
     }
 
-    public static List<int[][]> listMatrix(int[][] matrix) {
-        boolean[][] revealed = new boolean[matrix.length][matrix[0].length];
-        List<int[][]> list = new ArrayList<>();
-        List<Integer> yTemp = new ArrayList<>();
-        List<Integer> xTemp = new ArrayList<>();
-        int lastY = 0;
-        int lastX = 0;
+    public static List<byte[][]> listMatrix(byte[][] matrix) {
+        List<byte[][]> list = new ArrayList<>();
+        byte[][] cached = new byte[matrix.length][matrix[0].length];
+        for (int y = 0; y < cached.length; y++) {
+            for (int x = 0; x < cached[y].length; x++) {
+                cached[y][x] = 0;
+            }
+        }
+        boolean isCached = false;
+        int beginX = 0;
+        int finishX = 0;
+
         for (int y = 0; y < matrix.length; y++) {
             for (int x = 0; x < matrix[y].length; x++) {
-                if (revealed[y][x]) {
-                    continue;
+                if (matrix[y][x] == 1 && cached[y][x] != 1) {
+                    if (!isCached) {
+                        isCached = true;
+                        beginX = x;
+                    }
                 }
-                lastY = y;
-                lastX = x;
-                revealed[y][x] = true;
-                if (matrix[y][x] == 1) {
-                    yTemp.add(y);
-                    xTemp.add(x);
-                } else {
-                    break;
-                }
-            }
-        }
-     /*   List<Integer> yFalse = new ArrayList<>();
-        List<Integer> xFalse = new ArrayList<>();*/
-
-
-        /* if (exist1(y, x, matrix) > 1) {*/
-
-        Collections.sort(xTemp);
-        Collections.sort(yTemp);
-        int[][] result = new int[yTemp.get(yTemp.size() - 1) + 1][xTemp.get(xTemp.size() - 1) + 1];
-
-        for (int i = 0; i < result.length; i++) {
-            for (int j = 0; j < result[0].length; j++) {
-                result[i][j] = matrix[i][j];
-            }
-        }
-
-        if (fertile(result) > 1)
-            list.add(result);
-        /*for (int y = 0; y < revealed.length; y++) {
-            for (int x = 0; x < revealed[0].length; x++) {
-                if (!revealed[y][x]) {
-                    yFalse.add(y);
-                    xFalse.add(x);
+                if ((matrix[y][x] == 0 && isCached) || (x == matrix[y].length - 1 && isCached)) {
+                    if (matrix[y][x] == 0 && isCached) finishX = x;
+                    else finishX = x + 1;
+                    for (int i = 0; i < matrix.length; i++) {
+                        for (int k = beginX; k < finishX; k++) {
+                            if (matrix[i][k] == 1) cached[i][k] = 1;
+                        }
+                        if (i == matrix.length - 1 || matrix[i + 1][beginX] == 0) {
+                            isCached = false;
+                            list.add(cached);
+                            break;
+                        }
+                    }
                 }
             }
-        }
-       List<Integer> sizeY = new ArrayList<>(yFalse);
-        List<Integer> sizeX = new ArrayList<>(xFalse);
-        Collections.sort(sizeY);
-        Collections.sort(sizeX);*/
-        int[][] newMatrix;
-        System.arraycopy(matrix,lastY,);
-        int count = 0;
-        for (int y = 0; y < newMatrix.length; y++) {
-            for (int x = 0; x < newMatrix[0].length; x++) {
-                newMatrix[y][x] = matrix[yFalse.get(y)][xFalse.get(x)];
-                count++;
-            }
-        }
-        if (count > 1) {
-            listMatrix(newMatrix);
         }
         return list;
     }
@@ -116,20 +89,20 @@ public class Main {
         int n = Integer.parseInt(str.split(" ")[0]);
         int m = Integer.parseInt(str.split(" ")[1]);
 
-        int[][] matrix = new int[m][n];
+        byte[][] matrix = new byte[m][n];
         String tempString;
         for (int y = 0; y < matrix.length; y++) {
             tempString = in.nextLine();
             for (int x = 0; x < matrix[y].length; x++) {
-                matrix[y][x] = Integer.parseInt(tempString.split(" ")[x]);
+                matrix[y][x] = Byte.parseByte(tempString.split(" ")[x]);
             }
         }
 
 
         double k = 0;
-        List<int[][]> list = listMatrix(matrix);
-        int[][] result = list.get(0);
-        for (int[][] mat : list) {
+        List<byte[][]> list = listMatrix(matrix);
+        byte[][] result = list.get(0);
+        for (byte[][] mat : list) {
             if (k < coefficient(mat)) {
                 result = mat;
                 k = coefficient(mat);
