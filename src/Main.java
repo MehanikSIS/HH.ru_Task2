@@ -53,7 +53,9 @@ public class Main {
         // List<Integer> yTemp = new ArrayList<>();
         // List<Integer> xTemp = new ArrayList<>();
 
-        List<Node> node = new ArrayList<>();
+        //List<Node> node = new ArrayList<>();
+        Node startNode = null;
+        Node endNode = null;
         for (int y = 0; y < matrix.length; y++) {
             for (int x = 0; x < matrix[y].length; x++) {
                 if (matrix[y][x] == 2) continue;
@@ -63,12 +65,17 @@ public class Main {
                     //                }
                     // cached[y][x] = 1;
                     //    if (exist1(y, x, matrix) > 1) {
-                    node.add(new Node(y, x));
+                    if (startNode == null) {
+                        startNode = new Node(y, x);
+                        endNode = new Node(y, x);
+                    }
+                    else endNode = new Node(y, x);
                     cached[y][x] = 2;
                 } else {
                     if (!outBounds(y, x + 1, matrix) && (!outBounds(y + 1, x, matrix))) {
                         if (matrix[y][x] == 0 && matrix[y][x + 1] == 1 && matrix[y + 1][x] == 1) {
-                            node.add(new Node(y, x));
+                            if (startNode == null) startNode = new Node(y, x);
+                            else endNode = new Node(y, x);
                             cached[y][x] = 2;
                         } else {
                             cached[y][x] = 2;
@@ -89,25 +96,30 @@ public class Main {
 
         // Collections.sort(xTemp);
         // Collections.sort(yTemp);
-        int sizeY = 0;
-        int sizeX = 0;
-        if (node.size() > 0) {
-            for (Node node1 : node) {
-                if (sizeY < node1.y)
-                    sizeY = node1.y;
-                if (sizeX < node1.x)
-                    sizeX = node1.x;
-            }
+        int sizeY;
+        int sizeX;
+        // if (node.size() > 0) {
+        //     for (Node node1 : node) {
+        //         if (sizeY < node1.y)
+        //             sizeY = node1.y;
+        //         if (sizeX < node1.x)
+        //             sizeX = node1.x;
+        //     }
+        if (startNode != null && endNode != null) {
+            sizeY = (endNode.y - startNode.y) + 1;
+            sizeX = (endNode.x - startNode.x) + 1;
 
-            byte[][] result = new byte[sizeY + 1][sizeX + 1];
-            for (int i = 0; i < result.length; i++) {
-                System.arraycopy(matrix[i], 0, result[i], 0, result[i].length);
+            byte[][] result = new byte[sizeY][sizeX];
+            for (int y = 0; y < result.length; y++) {
+                for (int x = 0; x < result[y].length; x++) {
+                    result[y][x] = matrix[startNode.y + y][startNode.x + x];
+                }
             }
             list.add(result);
             matrix = cached;
-            if (fertile(matrix) > 1) {
-                listMatrix(matrix);
-            }
+        }
+        if (fertile(matrix) > 1) {
+            listMatrix(matrix);
         }
     }
 
@@ -151,15 +163,15 @@ public class Main {
         in.close();
     }
 
-    static class Node {
-        int x;
-        int y;
+static class Node {
+    int x;
+    int y;
 
-        Node(int y, int x) {
-            this.y = y;
-            this.x = x;
-        }
+    Node(int y, int x) {
+        this.y = y;
+        this.x = x;
     }
+}
 }
 
 
