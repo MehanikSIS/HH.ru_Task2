@@ -3,6 +3,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Main {
+    public static byte[][] matr;
     public static List<byte[][]> list = new ArrayList<>();
 
     public static int exist1(int y, int x, byte[][] matrix) {
@@ -57,9 +58,9 @@ public class Main {
         //Node startNode = null;
         // Node endNode = null;
         int startX = -1;
-        int endX = 100;
+        int endX = -1;
         int startY = -1;
-        int endY = 100;
+        int endY = -1;
         for (int y = 0; y < matrix.length; y++) {
             for (int x = 0; x < matrix[y].length; x++) {
                 if (matrix[y][x] == 2) continue;
@@ -137,14 +138,15 @@ public class Main {
         //         if (sizeX < node1.x)
         //             sizeX = node1.x;
         //     }
-        if ((endX - startX) + 1 > 0 && endY - startY > 0) {
+        if ((endX - startX) + 1 > 0 && ((endY - startY) + 1 > 0)
+        && startY != -1 && endY != -1 && startX != -1 && endX != -1) {
             sizeY = (endY - startY) + 1;
             sizeX = (endX - startX) + 1;
 
             byte[][] result = new byte[sizeY][sizeX];
             for (int y = 0; y < result.length; y++) {
                 for (int x = 0; x < result[y].length; x++) {
-                    result[y][x] = matrix[startY + y][startX + x];
+                    result[y][x] = matr[startY + y][startX + x];
                 }
             }
             list.add(result);
@@ -236,6 +238,10 @@ public class Main {
             for (int x = 0; x < matrix[y].length; x++) {
                 matrix[y][x] = Byte.parseByte(tempString.split(" ")[x]);
             }
+        }
+        matr = new byte[m][n];
+        for (int y = 0; y < matrix.length; y++) {
+            System.arraycopy(matrix[y], 0, matr[y], 0, matrix[y].length);
         }
         //   byte[][] matrix2 = new byte[matrix.length][matrix[0].length];
         //  for (int y = 0; y < matrix2.length; y++) {
