@@ -35,7 +35,7 @@ public class Main {
         }
     }
 
-    public static boolean outBounds(int y, int x) {              // координаты вне массива
+    public static boolean outBounds(int y, int x) {             // координаты вне массива
         return x < 0 || y < 0 || x >= matrix[0].length || y >= matrix.length;
     }
 
