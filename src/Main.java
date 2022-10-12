@@ -21,18 +21,18 @@ public class Main {
         return i > 1;
     }
 
-    public static boolean existFound(Node node, int y, int x) {            // соприкосновения плодородных участков после нахождения вершины
-        boolean flag = false;
+    public static void existFound(Node node, List<Node> list) {            // поиск остальных плодородных участков после нахождения первого
+
         for (int setY = -1; setY <= 1; setY++) {
             for (int setX = -1; setX <= 1; setX++) {
-                if (outBounds(setY + y, setX + x)) continue;
-                if (node.x == setX && node.y == setY) {
-                    flag = true;
-                    break;
+                if (outBounds(setY + node.y, setX + node.x)) continue;
+                if (matrix[node.y + setY][node.x + setX] == 1 && !array[node.y + setY][node.x + setX]) {
+                    array[node.y + setY][node.x + setX] = true;
+                    list.add(new Node(node.y + setY, node.x + setX));
+                    existFound(list.get(list.size() - 1), list);
                 }
             }
         }
-        return flag;
     }
 
     public static boolean outBounds(int y, int x) {              // координаты вне массива
@@ -60,49 +60,56 @@ public class Main {
     }
 
     public static void listMatrix(byte[][] matrix) {                            // нахождение и занесение в список прямоугольников на данном участке
-        byte[][] result = null;
-        Node firstNode = null;
-        Node lastNode = null;
+        byte[][] result;
         boolean flag = false;
+        List<Node> nodeList = new ArrayList<>();
         for (int y = 0; y < matrix.length; y++) {
             for (int x = 0; x < matrix[y].length; x++) {
-                if (matrix[y][x] == 1 && existNotFound(y, x) && !flag) {
+                if (matrix[y][x] == 0) {
                     array[y][x] = true;
-                    firstNode = new Node(y, x);
-                    lastNode = new Node(y, x);
+                    continue;
+                }
+                if (array[y][x]) {
+                    continue;
+                }
+                if (matrix[y][x] == 1 && !array[y][x] && existNotFound(y, x)) {
+                    nodeList.add(new Node(y, x));
+                    array[y][x] = true;
                     flag = true;
+                    break;
                 } else {
-                    if (matrix[y][x] == 1 && (existFound(lastNode, y, x)) && flag) {
-                        array[y][x] = true;
-                        lastNode = new Node(y, x);
-                    } else if (!outBounds(y, x + 1)) {
-                        if (matrix[y][x + 1] == 1) {
-                            array[y][x] = true;
-                            lastNode = new Node(y, x);
-                        }else{
-                            array[y][x] = true;
-                        }
-                    } else {
-                        array[y][x] = false;
-                    }
+                    array[y][x] = true;
                 }
             }
+            if (flag) {
+                break;
+            }
         }
-        if (firstNode != null && lastNode != null) {
-            int sizeY = lastNode.y - firstNode.y + 1;
-            int sizeX = lastNode.x - firstNode.x + 1;
-            result = new byte[sizeY][sizeX];
+        if (nodeList.size() > 0) {
+            existFound(nodeList.get(0), nodeList);
+            int minY = -1;
+            int maxY = -1;
+            int minX = -1;
+            int maxX = -1;
+            for (Node node : nodeList) {
+                if (minY == -1 || minY > node.y) minY = node.y;
+                if (minX == -1 || minX > node.x) minX = node.x;
+                if (maxY == -1 || maxY < node.y) maxY = node.y;
+                if (maxX == -1 || maxX < node.x) maxX = node.x;
+            }
+            result = new byte[maxY - minY + 1][maxX - minX + 1];
             for (int y = 0; y < result.length; y++) {
                 for (int x = 0; x < result[y].length; x++) {
-                    result[y][x] = matrix[firstNode.y + y][firstNode.x + x];
+                    result[y][x] = matrix[minY + y][minX + x];
+                    array[minY + y][minX + x] = true;
                 }
             }
+            list.add(result);
         }
-        list.add(result);
         int count = 0;
-        for (int y = 0; y < array.length; y++) {
-            for (int x = 0; x < array[y].length; x++) {
-                if (!array[y][x]) {
+        for (boolean[] booleans : array) {
+            for (boolean aBoolean : booleans) {
+                if (!aBoolean) {
                     count++;
                 }
             }
@@ -125,10 +132,15 @@ public class Main {
                 matrix[y][x] = Byte.parseByte(tempString.split(" ")[x]);
             }
         }
+        in.close();
         array = new boolean[m][n];
         listMatrix(matrix);
+        if (list.isEmpty()) {
+            System.out.println(0);
+            return;
+        }
         byte[][] result = list.get(0);
-        double k = 0;
+        double k = 0.0;
         int s = 0;
         for (byte[][] bytes : list) {
             if ((k < coefficient(fertile(bytes), square(bytes))) && (square(bytes) > 1)) {
@@ -143,7 +155,6 @@ public class Main {
             }
         }
         System.out.println(square(result));
-        in.close();
     }
 
     static class Node {
