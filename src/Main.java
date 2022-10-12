@@ -5,7 +5,7 @@ import java.util.Scanner;
 public class Main {
     public static byte[][] matrix;                                        // основное поле
     public static boolean[][] array;                                      // вспомогательный массив для нахождения прямоугольников
-    public static List<byte[][]> list = new ArrayList<>();                   // список прямоугольников на поле
+    public static List<byte[][]> list = new ArrayList<>();                // список прямоугольников на поле
 
     public static boolean existNotFound(int y, int x) {                   // соприкосновения плодородных участков до нахождения вершины
         if (outBounds(y, x)) {
